@@ -1,2 +1,1 @@
-# cvmfsreplica
-Daemon for the CVMFS Stratum-1
+TBD
