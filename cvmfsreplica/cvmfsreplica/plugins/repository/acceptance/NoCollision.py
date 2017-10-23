@@ -11,19 +11,19 @@ from cvmfsreplica.utils import check_disk_space
 import cvmfsreplica.pluginsmanagement as pm
 
 
-class Collision(RepositoryPluginAcceptanceInterface):
+class NoCollision(RepositoryPluginAcceptanceInterface):
 
     def __init__(self, repository, conf):
-        self.log = logging.getLogger('cvmfsreplica.collision')
+        self.log = logging.getLogger('cvmfsreplica.nocollision')
         self.repository = repository
         self.repositoryname = self.conf.get('repositoryname')
         self.conf = conf
         try:
-           self.timeout = self.conf.getint('collision.timeout')
+           self.timeout = self.conf.getint('nocollision.timeout')
            self.reportplugins = pm.readplugins(self.repository, 
                                                'repository', 
                                                'report', 
-                                               self.conf.namespace('acceptance.collision.', 
+                                               self.conf.namespace('acceptance.nocollision.', 
                                                                    exclude=True)
                                                )
         except:
