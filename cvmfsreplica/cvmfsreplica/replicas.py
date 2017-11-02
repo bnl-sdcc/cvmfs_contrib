@@ -84,11 +84,12 @@ class ReplicaManager:
 
         for section in self.repositoriesconf.sections():
             if self.repositoriesconf.getboolean(section, 'enabled'):
-                repositoryname = self.repositoriesconf.get(section, 'repositoryname')
+                #repositoryname = self.repositoriesconf.get(section, 'repositoryname')
                 self.log.debug('creating Repository() thread for %s' %repositoryname)
                 singlerepositoryconf = self.repositoriesconf.getSection(section)
                 try:
-                    repository = Repository(self, repositoryname, singlerepositoryconf)
+#                    repository = Repository(self, repositoryname, singlerepositoryconf)
+                    repository = Repository(self, section, singlerepositoryconf)
                 except RepositoriesConfigurationFailure, ex:
                     self.log.critical(ex)
                 self.repositories.append(repository)
@@ -177,7 +178,8 @@ class Repository(threading.Thread):
     into a pipe, and wait for the Request to be done.
     """
 
-    def __init__(self, manager, repositoryname, conf):
+#    def __init__(self, manager, repositoryname, conf):
+    def __init__(self, manager, name, conf):
         """
         manager is a reference to the ReplicaManager class
         that created object Repository
@@ -194,12 +196,14 @@ class Repository(threading.Thread):
         #       before conf is even read
 
         threading.Thread.__init__(self) # init the thread
-        self.log = logging.getLogger('cvmfsreplica.repository[%s]' %repositoryname)
+#        self.log = logging.getLogger('cvmfsreplica.repository[%s]' %repositoryname)
+        self.log = logging.getLogger('cvmfsreplica.repository[%s]' %name)
         self.stopevent = threading.Event()
 
         self.manager = manager
-        self.repositoryname = repositoryname
         self.conf = conf
+#        self.repositoryname = repositoryname
+        self.repositoryname = self.conf.get('repositoryname')
         #self.repositoryname = self.conf.get("repositoryname") 
         self.interval = self.conf.getint("interval")
         self.ntrials = self.conf.getint("ntrials")
@@ -214,8 +218,10 @@ class Repository(threading.Thread):
             self.postplugins = pm.readplugins(self, 'repository', 'post', self.conf)
             self._readtimeout()
         except:
+#            raise RepositoriesConfigurationFailure(
+#                  'configuration for repository %s cannot be read' %self.repositoryname)
             raise RepositoriesConfigurationFailure(
-                  'configuration for repository %s cannot be read' %self.repositoryname)
+                  'configuration for repository %s cannot be read' %name)
 
         # CMFS configuration:
         # getting the file with the time stampt for the last snapshot
